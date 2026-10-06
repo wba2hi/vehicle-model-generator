@@ -9,10 +9,10 @@ Execute the following commands in the base directory of the repository:
 
 2. Install the necessary dependencies in your python virtual environment
    ```bash
-   pip3 install -r tests/requirements.txt
+   pip install -r requirements.txt -r tests/requirements.txt
    ```
 
 3. Execute the test
    ```bash
-     PYTHONPATH=$(pwd)/src python3 -m pytest
+   PYTHONPATH=$(pwd)/src python -m pytest
    ```
