@@ -290,19 +290,19 @@ class VehicleModelTypescriptGenerator:
         if child_type == NodeType.SENSOR:
             return (
                 f"Sensor<{vss_type}>",
-                f"new Sensor('{child.name}', this)",
+                f'new Sensor("{child.name}", this)',
                 ("Sensor", vss_type),
             )
         if child_type == NodeType.ACTUATOR:
             return (
                 f"Actuator<{vss_type}>",
-                f"new Actuator('{child.name}', this, {vss_type})",
+                f'new Actuator("{child.name}", this, {vss_type})',
                 ("Actuator", vss_type),
             )
         # Attribute
         return (
             f"Attribute<{vss_type}>",
-            f"new Attribute('{child.name}', this)",
+            f'new Attribute("{child.name}", this)',
             ("Attribute", vss_type),
         )
 
@@ -349,7 +349,7 @@ class VehicleModelTypescriptGenerator:
                 prop_name=prop_name,
                 vss_name=vss_name,
                 decl_type=branch_alias,
-                ctor_call=f"new {branch_alias}('{child.name}', this)",
+                ctor_call=f'new {branch_alias}("{child.name}", this)',
                 doc_node=child,
                 branch_import=(child.name, branch_alias),
             )
@@ -402,7 +402,7 @@ class VehicleModelTypescriptGenerator:
                 "constructor(client?: VehicleDataBrokerClient) {\n"
             )
             self.ctx.indent()
-            self.ctx.write(f"super('{node.name}', undefined, client);\n\n")
+            self.ctx.write(f'super("{node.name}", undefined, client);\n\n')
         else:
             self.ctx.write(
                 "constructor(name: string, parent?: Node, client?: VehicleDataBrokerClient) {\n"
@@ -484,11 +484,9 @@ class VehicleModelTypescriptGenerator:
 
         for export_name, raw_name, rel_path in sorted(export_entries):
             if export_name == raw_name:
-                lines.append(f"export type {{ {raw_name} }} from '{rel_path}';")
+                lines.append(f'export type {{ {raw_name} }} from "{rel_path}";')
             else:
-                lines.append(
-                    f"export type {{ {raw_name} as {export_name} }} from '{rel_path}';"
-                )
+                lines.append(f'export type {{ {raw_name} as {export_name} }} from "{rel_path}";')
 
         lines.append("\n")
         with open(
@@ -513,15 +511,13 @@ class VehicleModelTypescriptGenerator:
         for sym in sorted_symbols:
             lines.append(f"    {sym},")
         lines.append("    type VehicleDataBrokerClient,")
-        lines.append("} from 'vehicle-app-ts-sdk';")
+        lines.append('} from "vehicle-app-ts-sdk";')
 
         for b_name, alias in sorted(self.branch_imports):
             if b_name == alias:
-                lines.append(f"import {{ {b_name} }} from './{b_name}/{b_name}.js';")
+                lines.append(f'import {{ {b_name} }} from "./{b_name}/{b_name}.js";')
             else:
-                lines.append(
-                    f"import {{ {b_name} as {alias} }} from './{b_name}/{b_name}.js';"
-                )
+                lines.append(f'import {{ {b_name} as {alias} }} from "./{b_name}/{b_name}.js";')
 
         lines.append("\n")
         return "\n".join(lines)

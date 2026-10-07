@@ -113,11 +113,11 @@ class VssCollection:
             "constructor(parent?: Node, client?: VehicleDataBrokerClient) {\n"
         )
         self.ctx.indent()
-        self.ctx.write(f"super('{node.name}', parent, client);\n\n")
+        self.ctx.write(f'super("{node.name}", parent, client);\n\n')
         for inst in instance_list:
             prop_name = sanitize_ts_identifier(inst)
             self.ctx.write(
-                f"this.{prop_name} = new {instance_type}('{inst}', this);\n"
+                f'this.{prop_name} = new {instance_type}("{inst}", this);\n'
             )
         elements_init = ", ".join(
             f"this.{sanitize_ts_identifier(inst)}" for inst in instance_list
@@ -151,9 +151,7 @@ class VssCollection:
         self.ctx.write("super(name, parent, client);\n\n")
         for inst in inner_instances.content:
             prop_name = sanitize_ts_identifier(inst)
-            self.ctx.write(
-                f"this.{prop_name} = new {element_type}('{inst}', this);\n"
-            )
+            self.ctx.write(f'this.{prop_name} = new {element_type}("{inst}", this);\n')
         inner_elements_init = ", ".join(
             f"this.{sanitize_ts_identifier(inst)}" for inst in inner_instances.content
         )

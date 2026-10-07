@@ -13,7 +13,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import re
 import shutil
 import tempfile
 from pathlib import Path
@@ -88,8 +87,8 @@ def test_typescript_vss_collection_simple():
     assert "export class SeatCollection extends Branch" in code
     assert "public readonly Row1: Seat;" in code
     assert "public readonly Row2: Seat;" in code
-    assert "this.Row1 = new Seat('Row1', this);" in code
-    assert "this.Row2 = new Seat('Row2', this);" in code
+    assert 'this.Row1 = new Seat("Row1", this);' in code
+    assert 'this.Row2 = new Seat("Row2", this);' in code
     assert "public row(index: 1 | 2): Seat" in code
     assert "this.#elements[index - 1]" in code
     assert "throw new RangeError(`Index ${index} is out of range [1, 2]`);" in code
@@ -115,8 +114,8 @@ def test_typescript_vss_collection_multi_level():
     assert "public readonly Right: Seat;" in code
     assert "public readonly Row1: SeatCollection_RowType;" in code
     assert "public readonly Row2: SeatCollection_RowType;" in code
-    assert "this.Row1 = new SeatCollection_RowType('Row1', this);" in code
-    assert "this.Left = new Seat('Left', this);" in code
+    assert 'this.Row1 = new SeatCollection_RowType("Row1", this);' in code
+    assert 'this.Left = new Seat("Left", this);' in code
     assert "public row(index: 1 | 2): SeatCollection_RowType" in code
     assert "public element(index: 1 | 2): Seat" in code
 
@@ -170,22 +169,22 @@ def test_typescript_generator_basic():
         assert os.path.isfile(os.path.join(temp_dir, "src", "vehicle", "VehicleFactory.ts"))
 
         index_ts = open(os.path.join(temp_dir, "src", "index.ts")).read()
-        assert "export type * from './types.js';" in index_ts
-        assert "export * from './vehicle/Vehicle.js';" in index_ts
-        assert "export * from './vehicle/VehicleFactory.js';" in index_ts
-        assert "export * from 'vehicle-app-ts-sdk'" not in index_ts
+        assert 'export type * from "./types.js";' in index_ts
+        assert 'export * from "./vehicle/Vehicle.js";' in index_ts
+        assert 'export * from "./vehicle/VehicleFactory.js";' in index_ts
+        assert 'export * from "vehicle-app-ts-sdk"' not in index_ts
 
         vehicle_ts = open(os.path.join(temp_dir, "src", "vehicle", "Vehicle.ts")).read()
         assert "export class Vehicle extends Branch" in vehicle_ts
         assert "constructor(client?: VehicleDataBrokerClient) {" in vehicle_ts
-        assert "super('Vehicle', undefined, client);" in vehicle_ts
+        assert 'super("Vehicle", undefined, client);' in vehicle_ts
         assert "public readonly Speed: Sensor<FloatVssType>;" in vehicle_ts
-        assert "this.Speed = new Sensor('Speed', this);" in vehicle_ts
+        assert 'this.Speed = new Sensor("Speed", this);' in vehicle_ts
         assert "createVehicle" not in vehicle_ts
         assert "VehicleFactory" not in vehicle_ts
         assert (
             'import {' in vehicle_ts
-            and "from 'vehicle-app-ts-sdk'" in vehicle_ts
+            and '"vehicle-app-ts-sdk"' in vehicle_ts
         )
         package_json = open(os.path.join(temp_dir, "package.json")).read()
         assert '"vehicle-app-ts-sdk": "^0.1.0"' in package_json
@@ -193,16 +192,10 @@ def test_typescript_generator_basic():
         factory_ts = open(os.path.join(temp_dir, "src", "vehicle", "VehicleFactory.ts")).read()
         assert "type ModelFactory," in factory_ts
         assert "type VehicleDataBrokerClient," in factory_ts
-        assert "import { Vehicle } from './Vehicle.js';" in factory_ts
+        assert 'import { Vehicle } from "./Vehicle.js";' in factory_ts
         assert "export class VehicleFactory implements ModelFactory<Vehicle> {" in factory_ts
         assert "create(client?: VehicleDataBrokerClient): Vehicle {" in factory_ts
         assert "return new Vehicle(client);" in factory_ts
-
-        for source_path in Path(temp_dir, "src").rglob("*.ts"):
-            source = source_path.read_text(encoding="utf-8")
-            assert not re.search(
-                r'(?:from\s+|(?:new\s+\w+|super)\s*\()\s*"', source
-            ), source_path
     finally:
         shutil.rmtree(temp_dir)
 
@@ -276,15 +269,15 @@ def test_typescript_same_name_child_branch():
         generator.generate()
 
         vehicle_ts = open(os.path.join(temp_dir, "src", "vehicle", "Vehicle.ts")).read()
-        assert "import { Body } from './Body/Body.js';" in vehicle_ts
+        assert 'import { Body } from "./Body/Body.js";' in vehicle_ts
         assert "public readonly Body: Body;" in vehicle_ts
-        assert "this.Body = new Body('Body', this);" in vehicle_ts
+        assert 'this.Body = new Body("Body", this);' in vehicle_ts
         assert "Vehicle_Body" not in vehicle_ts
 
         body_ts = open(os.path.join(temp_dir, "src", "vehicle", "Body", "Body.ts")).read()
         assert "import { Body as Body_Body } from" in body_ts
         assert "public readonly Body: Body_Body;" in body_ts
-        assert "this.Body = new Body_Body('Body', this);" in body_ts
+        assert 'this.Body = new Body_Body("Body", this);' in body_ts
         assert "export class Body extends Branch" in body_ts
         assert "constructor(name: string, parent?: Node, client?: VehicleDataBrokerClient) {" in body_ts
         assert "super(name, parent, client);" in body_ts
@@ -329,7 +322,7 @@ def test_typescript_allowed_and_int64_typing():
         vehicle_ts = open(os.path.join(temp_dir, "src", "vehicle", "Vehicle.ts")).read()
         assert "public readonly Gear: Actuator<StringVssType>;" in vehicle_ts
         assert "public readonly Big: Sensor<Uint64VssType>;" in vehicle_ts
-        assert "this.Gear = new Actuator('Gear', this, StringVssType);" in vehicle_ts
+        assert 'this.Gear = new Actuator("Gear", this, StringVssType);' in vehicle_ts
     finally:
         shutil.rmtree(temp_dir)
 
@@ -422,7 +415,7 @@ def test_typescript_types_generation():
         types_ts_path = os.path.join(temp_dir, "src", "types.ts")
         assert os.path.isfile(types_ts_path)
         types_content = open(types_ts_path).read()
-        assert "export type { Body } from './vehicle/Body/Body.js';" in types_content
+        assert 'export type { Body } from "./vehicle/Body/Body.js";' in types_content
         assert 'export type { Vehicle }' not in types_content
     finally:
         shutil.rmtree(temp_dir)
